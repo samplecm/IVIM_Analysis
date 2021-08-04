@@ -39,8 +39,10 @@ class Plotter3D:
 
 # fig.canvas.mpl_connect('scroll_event', tracker.on_scroll)
 # plt.show()
-def SliderPlot(image):
-    global fig, ax, sliderT, sliderO, img, array
+def SliderPlot(image, specialChannelNames):
+    global fig, ax, sliderT, sliderO, array, img, specialChannels, num_bVals, previous_j
+    num_bVals = image.shape[3]
+    specialChannels = specialChannelNames
     array = image 
     #this function takes a 4d array with the 3rd index being the slice and the 4th index being the b value 
     fig, ax = plt.subplots()
@@ -51,6 +53,7 @@ def SliderPlot(image):
 
     sliderT = Slider(axT, 'Slice', 0, array.shape[2]-1, valinit=0, valfmt='%i')
     sliderO = Slider(axO, 'b Val', 0, array.shape[3]-1, valinit=0, valfmt='%i')
+    previous_j = 0
 
     sliderT.on_changed(update)
     sliderO.on_changed(update)
@@ -61,13 +64,14 @@ def update(val):
     j = int(sliderO.val)
     im = array[:,:,i,j]
 
-    img.set_data(im)
-    img.cmap._set_extremes()
-    if j == array.shape[3]-1:
-        ax.clear()
-        l = ax.imshow(im, origin = 'upper')
+    img = img = ax.imshow(array[:,:,i,j], origin = 'upper')
+
+
+    #Only want to reload the colour bar for special images like D, D*, f. So we must clear the axis and make a new image for these types of images. Then when we go back to regular signal images need to recreate
+    #specialImageRange = range(num_bVals - 3, num_bVals - 1)
 
     fig.canvas.draw_idle()
+    
 
 
   
